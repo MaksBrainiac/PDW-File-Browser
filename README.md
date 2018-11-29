@@ -75,7 +75,11 @@ CKEDITOR.replace( 'editor1', {
 ```
 
 ##Version info
-Version 1.4 
+
+-----------------------------------------
+Version 1.4 beta
+-----------------------------------------
+
 + Removed SWF uploader
 + Integrated Flow.js uploader (https://github.com/flowjs/flow.js)
 
