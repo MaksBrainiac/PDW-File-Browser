@@ -18,6 +18,7 @@
 		shiftKeyPressed: false,
 		tableHeadersFixed: 0,
 		timeout: null,
+		qObject: {},
 		
 		init: function(){
 			
@@ -117,38 +118,44 @@
 			});
 			
 			// Folder events					
-			$('div#files ul li a.folder, div#files table tr.folder').live('dblclick', function(event){
-				$.MediaBrowser.loadFolder($(this).attr('href'));	
+			//###### $('div#files ul li a.folder, div#files table tr.folder').live('dblclick', function(event){
+			$('div#files').on('dblclick', 'ul li a.folder, table tr.folder', function(event){
+				$.MediaBrowser.loadFolder($(this).attr('href'));
 				event.preventDefault(); //Don't follow link
 			});
 
-			$('div#files ul li a.folder, div#files table tr.folder').live('click', function(event){
+            //###### $('div#files ul li a.folder, div#files table tr.folder').live('click', function(event){
+			$('div#files').on('click', 'ul li a.folder, table tr.folder', function(event){
 				if (event.button != 0) return true; //If right click then return true
 				$.MediaBrowser.selectFileOrFolder(this,$(this).attr('href'),'folder'); //Select clicked folder
 				event.preventDefault(); //Don't follow link
 			});
 			
 			// File events
-			$('div#files ul li a.file, div#files table tr.file').live('click', function(event){
+            //###### $('div#files ul li a.file, div#files table tr.file').live('click', function(event){
+			$('div#files').on('click', 'ul li a.file, table tr.file', function(event){
 				if (event.button != 0) return true; //If right click then return true
 				$.MediaBrowser.selectFileOrFolder(this,$(this).attr('href'),'file'); //Select clicked file
 				event.preventDefault(); //Don't follow link
 			});
-			
-			$('div#files ul li a.file, div#files table tr.file').live('dblclick', function(event){
+
+            //###### $('div#files ul li a.file, div#files table tr.file').live('dblclick', function(event){
+			$('div#files').on('dblclick', 'ul li a.file, table tr.file', function(event){
                 $("form#fileform input#file").val($(this).attr('href'));
 				$.MediaBrowser.insertFile();
 				event.preventDefault(); //Don't follow link
             });
 			
 			// Image events
-			$('div#files ul li a.image, div#files table tr.image').live('click', function(event){
+            //###### $('div#files ul li a.image, div#files table tr.image').live('click', function(event){
+			$('div#files').on('click', 'ul li a.image, table tr.image', function(event){
 				if (event.button != 0) return true; //If right click then return true
 				$.MediaBrowser.selectFileOrFolder(this,$(this).attr('href'),'image'); //Select clicked image
 				event.preventDefault(); //Don't follow link
 			});
-			
-			$('div#files ul li a.image, div#files table tr.image').live('dblclick', function(event){
+
+            //###### $('div#files ul li a.image, div#files table tr.image').live('dblclick', function(event){
+			$('div#files').on('dblclick', 'ul li a.image, table tr.image', function(event){
                 var host = '';
 				var path = $(this).attr('href');
 				
@@ -173,13 +180,15 @@
             });
 
 			// Add event handlers to links in addressbar
-			$('div#addressbar a[href]').live('click', function(event){
+            //###### $('div#addressbar a[href]').live('click', function(event){
+			$('div#addressbar').on('click', 'a[href]', function(event){
 				$.MediaBrowser.loadFolder($(this).attr('href'));
 				event.preventDefault(); //Don't follow link
 			});
 
 			// Add event handlers to links in addressbar
-			$('input#fn').live('keyup', function(event){
+            //###### $('input#fn').live('keyup', function(event){
+			$('body').on('keyup', 'input#fn', function(event){
 				if(this.value != this.defaultValue){
 					$('a.save_rename').css({'display':'inline'});
 				} else {
@@ -188,7 +197,8 @@
 			});
 			
 			// Add event handlers to links in treeview
-			$('ul.treeview a[href]').live('click', function(event){
+            //###### $('ul.treeview a[href]').live('click', function(event){
+			$('body').on('click', 'ul.treeview a[href]', function(event){
 				$.MediaBrowser.loadFolder($(this).attr('href'));
 				event.preventDefault(); //Don't follow link
 			});
@@ -407,8 +417,10 @@
 			} 
 			else if(editor == "standalone")
 			{
-				window.opener.document.getElementById(returnID).value = URL;
-				window.close();
+				if (window.opener) {
+                    window.opener.document.getElementById(returnID).value = URL;
+                    window.close();
+                }
 			} 
 			else 
 			{
@@ -487,6 +499,8 @@
 					
 					message = data.split("||");
 					$.MediaBrowser.showMessage(message[1],"success");
+                    $.MediaBrowser.hideLayer();
+                    $.MediaBrowser.loadFolder($.MediaBrowser.currentFolder);
 				} else {
 					message = data.split("||");
 					$.MediaBrowser.showMessage(message[1],"error");	
@@ -730,6 +744,7 @@
 		
 		setCurrentFolder: function(str){
 			$.MediaBrowser.currentFolder = str;
+            $.MediaBrowser.qObject.uploadpath = str;
 			$('input#uploadpath, input#folderpath').val(str);
 		},
 		
@@ -941,7 +956,7 @@
 		updateTreeView: function(folder){
 			$('ul.treeview li').removeClass();
 			
-			$('ul.treeview a[href=' + folder + ']')
+			$('ul.treeview a[href="' + folder + '"]')
 				.parents('ul')
 					.css({'display':'block'})
 					.prevAll('a.children')
